@@ -10,11 +10,12 @@ class Character:
         self.hp = hp
         self.power = power
         self.normal_attack = normal_attack
+        self.character = []  # 캐릭터 리스트 -> 유저, 몬스터 둘다 사용 가능??
         self.alive = True
 
     def show_status(self):
         # 스탯 확인 코드
-        print(f"나는 스탯 확인 칸입니다!!!")
+        print(f"나는 스탯 확인 칸입니다!!!\n")
         pass
 
     def check_alive(self):
@@ -43,8 +44,12 @@ class Monster(Character):
 
 # 혜민님
 class Player(Character):
-    def show_choice_character(self, choice_character):
-        print("나는 선택한 캐릭터들을 보여주는 칸입니다~~")
+    def __init__(self, name, character):
+        super().__init__(name)
+        self.character = character
+
+    def show_choice_character(self):
+        print(self.character)
 
     def item(self):
         # 강철검 : 착용 시 파워 5 증가
@@ -85,10 +90,10 @@ class Job(Player):
 # 플레이어 생성
 def create_players():
     # 이름을 입력
-    player_name = input("플레이어의 닉네임을 정해주세요. \n"
+    users_name = input("플레이어의 닉네임을 정해주세요. \n"
                         "닉네임 : ")
 
-    return player_name
+    return users_name
 
 
 def select_job(num):
@@ -100,7 +105,12 @@ def select_job(num):
         character_jobs = input(f"{i+1}번째 캐릭터의 직업을 선택해주세요. \n"
                             f"1.궁수 2.전사 3.마법사 4.힐러 5.탱커 \n"
                             f"직업(숫자) : ")
-        choice_job.append(job_list[int(character_jobs) - 1])
+        if job_list[int(character_jobs) - 1] in choice_job:
+            print("이미 선택한 캐릭터 입니다! \n 처음부터 다시 선택해주세요!")  # 지금은 처음부터 다시 시작이지만 후에 수정예정
+            return select_job(num)
+        else:
+            choice_job.append(job_list[int(character_jobs) - 1])
+    choice_job.sort()
     return choice_job
 
 
@@ -112,13 +122,23 @@ def select_monster():
     return monster_style[int(answer) - 1]
 
 
+def select_character():
+    characters = player.character
+    print('전투할 캐릭터를 선택해 주세요.')
+    for i in range(len(player.character)):
+        print(f"{i+1}.{characters[i]}")
+    answer = input("선택한 캐릭터 : ")
+    return characters[int(answer)-1]
+
+
 # 플레이어 정의 -> 미영
 player_name = create_players()  # 플레이어 이름
 # 플레이 할 캐릭터 수 설정 코드
-play_member = input("사용할 캐릭터 수를 적어 주세요.(최대 5명)")
+play_member = input("사용할 캐릭터 수를 적어 주세요.(최대 5명)\n"
+                    "answer : ")
 character_job = select_job(int(play_member))  # 캐릭터의 job 설정
-player = Player(player_name)  # name
-player.show_choice_character(character_job)
+player = Player(player_name, character_job)  # name
+player.show_choice_character()
 
 
 # 미영
@@ -131,6 +151,9 @@ while True:
     # 몬스터 스탯 확인
     monster.show_status()
     while True:
+        # 플레이어 공격할 캐릭터 선택
+        choice_character = select_character()
+        print(choice_character)
         # 플레이어 공격 선택 (일반 공격, 직업별 스킬, 아이템 사용, 스탯 확인(몬스터,플레이어))
         # 플레이어 공격
         # 몬스터 공격
